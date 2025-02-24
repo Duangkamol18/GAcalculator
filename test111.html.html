@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คำนวณอายุครรภ์</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+            font-size: 24px;
+            background-color: #fce4ec; /* พื้นหลังสีชมพูอ่อน */
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+        input, button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #ff4081;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #e91e63;
+        }
+        img {
+            width: 200px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://drive.google.com/uc?export=view&id=1sv0wWp39ulOhH5Mic5CgZThPrNDLoAZl" 
+             alt="Fetal Diagnosis and Therapy Center Thammasat">
+        <h2>คำนวณอายุครรภ์</h2>
+        <label for="dueDate">เลือกวันกำหนดคลอด:</label>
+        <input type="date" id="dueDate">
+        <button onclick="calculatePregnancyAge()">คำนวณ</button>
+        <p id="dueDateResult"></p>
+        <p id="screeningTest"></p>
+        <p id="amniocentesis"></p>
+        <p id="result"></p>
+        <h2>ตรวจสอบอายุครรภ์ในวันที่นัดหมาย</h2>
+        <label for="appointmentDate">เลือกวันนัดหมาย:</label>
+        <input type="date" id="appointmentDate">
+        <button onclick="calculateAppointmentAge()">ตรวจสอบ</button>
+        <p id="appointmentDateResult"></p>
+        <p id="appointmentResult"></p>
+        <br>
+        <button onclick="clearData()">รีเฟรช</button>
+    </div>
+
+    <script>
+        function formatDate(date) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        function calculatePregnancyAge() {
+            const dueDateInput = document.getElementById('dueDate').value;
+            if (!dueDateInput) {
+                alert("กรุณาเลือกวันกำหนดคลอด");
+                return;
+            }
+            
+            const dueDate = new Date(dueDateInput);
+            document.getElementById('dueDateResult').innerText = `วันกำหนดคลอด: ${formatDate(dueDate)}`;
+            
+            const conceptionDate = new Date(dueDate);
+            conceptionDate.setDate(conceptionDate.getDate() - 280);
+            
+            const today = new Date();
+            const diffTime = today - conceptionDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 0) {
+                document.getElementById('result').innerText = "วันที่กำหนดคลอดต้องเป็นอนาคต!";
+                document.getElementById('amniocentesis').innerText = "";
+                document.getElementById('screeningTest').innerText = "";
+                return;
+            }
+            
+            const weeks = Math.floor(diffDays / 7);
+            const days = diffDays % 7;
+            
+            document.getElementById('result').innerText = `อายุครรภ์ปัจจุบัน: ${weeks} สัปดาห์ ${days} วัน`;
+            
+            const screeningStart = new Date(conceptionDate);
+            screeningStart.setDate(screeningStart.getDate() + (12 * 7));
+            const screeningEnd = new Date(conceptionDate);
+            screeningEnd.setDate(screeningEnd.getDate() + (18 * 7));
+            
+            document.getElementById('screeningTest').innerText = `ช่วงเวลาที่เหมาะสมสำหรับการเจาะเลือดคัดกรองดาวน์: ${formatDate(screeningStart)} - ${formatDate(screeningEnd)}`;
+            
+            const amnioStart = new Date(conceptionDate);
+            amnioStart.setDate(amnioStart.getDate() + (17 * 7));
+            const amnioEnd = new Date(conceptionDate);
+            amnioEnd.setDate(amnioEnd.getDate() + (20 * 7));
+            
+            document.getElementById('amniocentesis').innerText = `ช่วงเวลาที่เหมาะสมสำหรับการเจาะน้ำคร่ำ: ${formatDate(amnioStart)} - ${formatDate(amnioEnd)}`;
+        }
+
+        function calculateAppointmentAge() {
+            const dueDateInput = document.getElementById('dueDate').value;
+            const appointmentDateInput = document.getElementById('appointmentDate').value;
+            if (!dueDateInput || !appointmentDateInput) {
+                alert("กรุณาเลือกวันกำหนดคลอดและวันนัดหมาย");
+                return;
+            }
+
+            const dueDate = new Date(dueDateInput);
+            const conceptionDate = new Date(dueDate);
+            conceptionDate.setDate(conceptionDate.getDate() - 280);
+            
+            const appointmentDate = new Date(appointmentDateInput);
+            const diffTime = appointmentDate - conceptionDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const weeks = Math.floor(diffDays / 7);
+            const days = diffDays % 7;
+            
+            document.getElementById('appointmentDateResult').innerText = `วันนัดหมาย: ${formatDate(appointmentDate)}`;
+            document.getElementById('appointmentResult').innerText = `อายุครรภ์ในวันนัดหมาย: ${weeks} สัปดาห์ ${days} วัน`;
+        }
+
+        function clearData() {
+            document.getElementById('dueDate').value = "";
+            document.getElementById('appointmentDate').value = "";
+            document.getElementById('dueDateResult').innerText = "";
+            document.getElementById('result').innerText = "";
+            document.getElementById('amniocentesis').innerText = "";
+            document.getElementById('screeningTest').innerText = "";
+            document.getElementById('appointmentDateResult').innerText = "";
+            document.getElementById('appointmentResult').innerText = "";
+        }
+    </script>
+</body>
+</html>
